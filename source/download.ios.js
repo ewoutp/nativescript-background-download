@@ -56,18 +56,27 @@ var SessionDelegate = NSObject.extend({
         });
     },
     URLSessionDownloadTaskDidFinishDownloadingToURL: function(session, downloadTask, location) {
+        console.log("URLSessionDownloadTaskDidFinishDownloadingToURL");
         // TODO
         // A file URL for the temporary file. Because the file is temporary, you must either open
         // the file for reading or move it to a permanent location in your app’s sandbox container
         // directory before returning from this delegate method.
         var jsTask = getTask(session, downloadTask);
-        var downloadFile = NSURL.URLWithString(jsTask.get("downloadFile"));
-        var fileManager = NSFileManager.defaultManager;
-        fileManager.copyItemAtURL(location, downloadFile);
+        var downloadFile = NSURL.fileURLWithPath(jsTask.get("downloadFile"));
+        var fileManager = NSFileManager.defaultManager();
+        // Remove destination first
+        fileManager.removeItemAtURLError(downloadFile, null)
+        try {
+            fileManager.copyItemAtURLToURLError(location, downloadFile)
+            console.log("copyItemAtURLToURLError from " + location + " to " + downloadFile + " succeeded");
+        } catch (err) {
+            console.log("copyItemAtURLToURLError from " + location + " to " + downloadFile + " failed: " + err);
+        }
     },
 
     // NSURLSessionTaskDelegate
     URLSessionTaskDidCompleteWithError: function(session, nsTask, error) {
+        console.log("URLSessionTaskDidCompleteWithError");
         var jsTask = getTask(session, nsTask);
         if (error) {
             jsTask.set("status", "error");
@@ -121,7 +130,7 @@ var SessionDelegate = NSObject.extend({
 // TODO: Create a mechanism to clean sessions from the cache that have all their tasks completed, canceled or errored out.
 var sessions = {};
 
-function session(id): Observable {
+function session(id) {
 
     var jsSession = sessions[id];
     if (jsSession) {
@@ -135,7 +144,6 @@ function session(id): Observable {
     function downloadFile(fileUri, options) {
 
         var url = NSURL.URLWithString(options.url);
-        var file = NSURL.URLWithString(fileUri);
 
         var newTask = session.downloadTaskWithURL(url);
         newTask.taskDescription = options.description;
@@ -157,8 +165,8 @@ exports.session = session;
 
 var tasks = new WeakMap();
 
-function getTask(nsSession, nsTask): Observable {
-    var jsTask = < Observable > tasks.get(nsTask);
+function getTask(nsSession, nsTask) {
+    var jsTask = tasks.get(nsTask);
     if (jsTask) {
         return jsTask;
     }

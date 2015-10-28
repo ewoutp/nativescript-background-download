@@ -1,0 +1,15 @@
+<Page xmlns="http://www.nativescript.org/tns.xsd" loaded="pageLoaded">
+  <StackLayout>
+    <Button text="Download!" tap="downloadNow" />
+    <ListView items="{{ tasks }}">
+    	<ListView.itemTemplate>
+    		<StackLayout>
+    			<Label text="{{ download, 'Download: ' + download + ' / ' + totalDownload }}" />
+    			<Progress value="{{ download }}" maxValue="{{ totalDownload }}" />
+    			<Label text="{{ description, 'description: ' + description }}" />
+    			<Label text="{{ status, 'status: ' + status }}" />
+    		</StackLayout>
+    	</ListView.itemTemplate>
+    </ListView>
+  </StackLayout>
+</Page>

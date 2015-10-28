@@ -1,0 +1,12 @@
+{
+	"nativescript": {
+		"id": "org.nativescript.downloadsample",
+		"tns-ios": {
+			"version": "1.4.1"
+		}
+	},
+	"dependencies": {
+		"nativescript-background-download": "file:../../source",
+		"tns-core-modules": "1.4.0"
+	}
+}
